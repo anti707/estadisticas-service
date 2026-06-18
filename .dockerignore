@@ -1,0 +1,28 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Local environment files
+.env
+.env.*
+
+# Cache and logs
+.pytest_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+*.log
+
+# Docker and git
+Dockerfile
+docker-compose.yml
+.git
