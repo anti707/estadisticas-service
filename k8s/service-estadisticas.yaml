@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: estadisticas-service
+  labels:
+    app: estadisticas-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: estadisticas-service
+  template:
+    metadata:
+      labels:
+        app: estadisticas-service
+    spec:
+      containers:
+        - name: estadisticas
+          image: 646120519392.dkr.ecr.us-east-1.amazonaws.com/casino-estadisticas:latest
+          ports:
+            - containerPort: 8006
+          resources:
+            requests:
+              cpu: "50m"
+            limits:
+              cpu: "150m"
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 8006
+            initialDelaySeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8006
+            initialDelaySeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: estadisticas-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8006
+      targetPort: 8006
+  selector:
+    app: estadisticas-service
