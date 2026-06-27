@@ -9,14 +9,16 @@ los expone para el dashboard del frontend. Comparte BD y JWT con casino-backend.
 Prefijo de rutas: /api/estadisticas
 """
 import os
+import time #añadido
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException, status #añadido
 from fastapi.middleware.cors import CORSMiddleware
 
 from .auth import usuario_actual
 from .db import conexion, dict_cursor, esperar_bd
 
+START_TIME = time.time()#añadido
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -41,9 +43,41 @@ app.add_middleware(
 )
 
 
-# TODO (alumno): implementar las rutas de salud que usará Kubernetes:
-#   - liveness: ¿el proceso está vivo? (respuesta simple).
-#   - readiness: ¿está listo para recibir tráfico? Debe verificar la BD.
+#añadido
+@app.get("/livez", status_code=200)
+def liveness():
+    """¿El proceso está vivo? (Respuesta simple e idéntica a Node.js)."""
+    uptime_seconds = time.time() - START_TIME
+    return {
+        "status": "alive", 
+        "uptime": uptime_seconds
+    }
+
+
+@app.get("/readyz")
+def readiness():
+    """¿Está listo para recibir tráfico? Verifica la conexión a PostgreSQL."""
+    try:
+        with conexion() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT 1;")
+                cursor.fetchone()
+                
+        return {
+            "status": "ready", 
+            "db": "up"
+        }
+        
+    except Exception as err:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "status": "not-ready",
+                "db": "down",
+                "error": str(err)
+            }
+        )
+#añadido
 # Luego configurar livenessProbe/readinessProbe en el Deployment de EKS.
 
 
