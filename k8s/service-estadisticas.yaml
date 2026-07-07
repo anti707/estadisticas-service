@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: estadisticas
-          image: 403943113547.dkr.ecr.us-east-1.amazonaws.com/casino-estadisticas:latest
+          image: 995732577501.dkr.ecr.us-east-1.amazonaws.com/estadisticas-casino:latest
           ports:
             - containerPort: 8006
           resources:
